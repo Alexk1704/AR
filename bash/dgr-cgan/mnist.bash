@@ -1,0 +1,210 @@
+EXP_ID="dgr-mnist-replay"
+
+PROJ_PATH="${HOME}/git/AR"
+DATA_DIR="${HOME}/datasets"
+SAVE_DIR="${HOME}/exp-results/${EXP_ID}"
+
+AR_MOD="cl_replay.architecture.ar"
+export PYTHONPATH=$PYTHONPATH:$PROJ_PATH/src/cl_replay
+
+NOISE_DIM=100
+DATA_DIM=784
+LABEL_DIM=10
+
+python3 -m cl_replay.architecture.dgr.experiment.Experiment_DGR \
+--project_name                  CLVISION24                      \
+--architecture                  DGR-CGAN                        \
+--exp_group                     DGR-CGAN                        \
+--exp_tags                      DGR-CGAN                        \
+--exp_id                        "${EXP_ID}"                     \
+--wandb_active                  no                              \
+--dataset_dir                   "${DATA_DIR}"                   \
+--dataset_load                  tfds                            \
+--dataset_name                  mnist                           \
+--renormalize01                 yes                             \
+--np_shuffle                    yes                             \
+--vis_batch                     no                              \
+--vis_gen                       no                              \
+--data_type                     32                              \
+--num_tasks                     4                               \
+--DAll                          0 1 2 3 4 5 6 7 8 9             \
+--T1                            0 1 2 3 4 5 6                   \
+--T2                            7                               \
+--T3                            8                               \
+--T4                            9                               \
+--num_classes                   ${LABEL_DIM}                    \
+--batch_size                    128                             \
+--sampling_batch_size           128                             \
+--log_level                     DEBUG                           \
+--save_All                      yes                             \
+--train_method                  fit                             \
+--test_method                   eval                            \
+--full_eval                     yes                             \
+--single_class_test             no                              \
+--model_type                    DGR-GAN                         \
+--callback_paths                ${AR_MOD}.callback              \
+--global_callbacks              Log_Metrics                     \
+--log_path                      "${SAVE_DIR}"                   \
+--vis_path                      "${SAVE_DIR}"                   \
+--ckpt_dir                      "${SAVE_DIR}"                   \
+--log_training                  no                              \
+--dump_after_train              no                              \
+--input_size                    28 28 1                         \
+--generator_type                GAN                             \
+--gan_epochs                    100                             \
+--solver_epochs                 50                              \
+--solver_epsilon                0.001                           \
+--replay_proportions            50. 50.                         \
+--samples_to_generate           -1.                             \
+--loss_coef                     off                             \
+--noise_dim                     ${NOISE_DIM}                    \
+--conditional                   yes                             \
+--wasserstein                   no                              \
+--gp_weight                     10                              \
+--wgan_disc_iters               3                               \
+--drop_solver                   no                              \
+--drop_generator                no                              \
+--gan_epsilon                   0.0005                          \
+--gan_beta1                     0.5                             \
+--gan_beta2                     0.999                           \
+--G_model_inputs            0 1             \
+--G_model_outputs           13              \
+--G0                        Input_Layer     \
+--G0_layer_name             G0_INPUT        \
+--G0_shape                  ${NOISE_DIM}    \
+--G1                        Input_Layer     \
+--G1_layer_name             G1_INPUT        \
+--G1_shape                  ${LABEL_DIM}    \
+--G2                        cl_replay.api.layer.keras.Dense_Layer \
+--G2_layer_name             G2_DENSE        \
+--G2_units                  ${NOISE_DIM}    \
+--G2_activation             none            \
+--G2_input_layer            1               \
+--G3                        cl_replay.api.layer.keras.BatchNorm_Layer \
+--G3_layer_name             G3_BATCHNORM    \
+--G3_input_layer            2               \
+--G4                        cl_replay.api.layer.keras.LeakyReLU_Layer \
+--G4_layer_name             G4_LEAKYRELU    \
+--G4_alpha                  0.2             \
+--G4_input_layer            3               \
+--G5                        cl_replay.api.layer.keras.Flatten_Layer \
+--G5_layer_name             G5_FLATTEN      \
+--G5_input_layer            4               \
+--G6                        cl_replay.api.layer.keras.Concatenate_Layer \
+--G6_layer_name             G6_CONCAT       \
+--G6_input_layer            0 5             \
+--G7                        cl_replay.api.layer.keras.Dense_Layer \
+--G7_layer_name             G7_DENSE        \
+--G7_units                  2048            \
+--G7_activation             none            \
+--G7_input_layer            6               \
+--G8                        cl_replay.api.layer.keras.BatchNorm_Layer \
+--G8_layer_name             G8_BATCHNORM    \
+--G8_input_layer            7               \
+--G9                        cl_replay.api.layer.keras.LeakyReLU_Layer \
+--G9_layer_name             G9_LEAKYRELU    \
+--G9_alpha                  0.2             \
+--G9_input_layer            8               \
+--G10                       cl_replay.api.layer.keras.Dense_Layer \
+--G10_layer_name            G10_DENSE       \
+--G10_units                 2048            \
+--G10_activation            none            \
+--G10_input_layer           9               \
+--G11                       cl_replay.api.layer.keras.BatchNorm_Layer \
+--G11_layer_name            G11_BATCHNORM   \
+--G11_input_layer           10              \
+--G12                       cl_replay.api.layer.keras.LeakyReLU_Layer \
+--G12_layer_name            G12_LEAKYRELU   \
+--G12_alpha                 0.2             \
+--G12_input_layer           11              \
+--G13                       cl_replay.api.layer.keras.Dense_Layer \
+--G13_layer_name            G13_OUT         \
+--G13_units                 ${DATA_DIM}     \
+--G13_activation            sigmoid         \
+--G13_input_layer           12              \
+--D_model_inputs            0 1                 \
+--D_model_outputs           13                  \
+--D0                        Input_Layer         \
+--D0_layer_name             D0_INPUT            \
+--D0_shape                  ${DATA_DIM}         \
+--D1                        Input_Layer         \
+--D1_layer_name             D1_INPUT            \
+--D1_shape                  ${LABEL_DIM}        \
+--D2                        cl_replay.api.layer.keras.Dense_Layer \
+--D2_layer_name             D2_DENSE            \
+--D2_units                  ${DATA_DIM}         \
+--D2_activation             none                \
+--D2_input_layer            1                   \
+--D3                        cl_replay.api.layer.keras.LeakyReLU_Layer \
+--D3_layer_name             D3_LEAKYRELU        \
+--D3_alpha                  0.2                 \
+--D3_input_layer            2                   \
+--D4                        cl_replay.api.layer.keras.Dropout_Layer \
+--D4_rate                   0.3                 \
+--D4_layer_name             D4_DROPOUT          \
+--D4_input_layer            3                   \
+--D5                        cl_replay.api.layer.keras.Flatten_Layer \
+--D5_layer_name             D5_FLATTEN          \
+--D5_input_layer            4                   \
+--D6                        cl_replay.api.layer.keras.Concatenate_Layer \
+--D6_layer_name             D6_CONCAT           \
+--D6_input_layer            0 5                 \
+--D7                        cl_replay.api.layer.keras.Dense_Layer \
+--D7_layer_name             D7_DENSE            \
+--D7_units                  512                 \
+--D7_activation             none                \
+--D7_input_layer            6                   \
+--D8                        cl_replay.api.layer.keras.LeakyReLU_Layer \
+--D8_layer_name             D8_LEAKYRELU        \
+--D8_alpha                  0.2                 \
+--D8_input_layer            7                   \
+--D9                        cl_replay.api.layer.keras.Dropout_Layer \
+--D9_rate                   0.3                 \
+--D9_layer_name             D9_DROPOUT          \
+--D9_input_layer            8                   \
+--D10                       cl_replay.api.layer.keras.Dense_Layer \
+--D10_layer_name            D10_DENSE           \
+--D10_units                 256                 \
+--D10_activation            none                \
+--D10_input_layer           9                   \
+--D11_alpha                 0.2                 \
+--D11                       cl_replay.api.layer.keras.LeakyReLU_Layer \
+--D11_layer_name            D11_LEAKYRELU       \
+--D11_input_layer           10                  \
+--D12                       cl_replay.api.layer.keras.Dropout_Layer \
+--D12_rate                  0.3                 \
+--D12_layer_name            D12_DROPOUT         \
+--D12_input_layer           11                  \
+--D13                       cl_replay.api.layer.keras.Dense_Layer \
+--D13_layer_name            D13_DENSE           \
+--D13_units                 1                   \
+--D13_activation            sigmoid             \
+--D13_input_layer           12                  \
+--S_model_inputs            0                       \
+--S_model_outputs           5                       \
+--S0                        Input_Layer \
+--S0_layer_name             S0_INPUT                \
+--S0_shape                  28 28 1                 \
+--S1                        cl_replay.api.layer.keras.Flatten_Layer \
+--S1_layer_name             S1_FLATTEN              \
+--S1_input_layer            0                       \
+--S2                        cl_replay.api.layer.keras.Dense_Layer \
+--S2_layer_name             S2_DENSE                \
+--S2_units                  400                     \
+--S2_activation             relu                    \
+--S2_input_layer            1                       \
+--S3                        cl_replay.api.layer.keras.Dense_Layer \
+--S3_layer_name             S3_DENSE                \
+--S3_units                  400                     \
+--S3_activation             relu                    \
+--S3_input_layer            2                       \
+--S4                        cl_replay.api.layer.keras.Dense_Layer \
+--S4_layer_name             S4_DENSE                \
+--S4_units                  400                     \
+--S4_activation             relu                    \
+--S4_input_layer            3                       \
+--S5                        cl_replay.api.layer.keras.Dense_Layer \
+--S5_layer_name             S5_OUT                  \
+--S5_units                  ${LABEL_DIM}            \
+--S5_activation             softmax                 \
+--S5_input_layer            4
